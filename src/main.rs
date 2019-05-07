@@ -211,18 +211,21 @@ pub fn main() {
         for tri in &mesh_cube.tris {
             // loop through all vertices in the triangle
             let mut points: [Point;3] = [ Point::new(0,0), Point::new(0,0), Point::new(0,0) ];
+            let mut tri_normalize: Triangle = Triangle::zero();
             for i in 0..3 {
-
                 // rotate (vertice) cube on Z axis
-                let mut tri_rotatedz: Triangle = tri.clone();
+                let mut tri_rotatedz: Triangle = Triangle::zero();
                 multiply_matrix_vector(&tri.p[i], &mut tri_rotatedz.p[i], &mat_rotz);
                 // rotate also on the X axis
-                let mut tri_rotatedx: Triangle = tri_rotatedz.clone();
+                let mut tri_rotatedx: Triangle = Triangle::zero();
                 multiply_matrix_vector(&tri_rotatedz.p[i], &mut tri_rotatedx.p[i], &mat_rotx);
 
                 // translate coordinates away from camera
                 let mut tri_translated: Triangle = tri_rotatedx.clone();
                 tri_translated.p[i].z += 3.0;
+
+                // store pre projected version for later culling in a cross product calculation
+                tri_normalize.p[i] = tri_translated.p[i].clone();
 
                 // project 3d vertices in 2d space
                 let mut tri_projected: Triangle = Triangle::zero();
@@ -237,17 +240,41 @@ pub fn main() {
                 points[i] = Point::new(tri_projected.p[i].x as i32, tri_projected.p[i].y as i32);
             }
 
-            // draw triangle (as lines) to backbuffer
-            for i in 0..3 {
-                // end of this line is the beginning of the next..
-                let mut j = i + 1;
-                // .. unless the next line is actually the first one
-                j = if j == 3 { 0 } else { j };
-                // set draw color to white
-                canvas.set_draw_color(Color::RGB(255, 255, 255));
-                // draw the line
-                //println!("{:?}, {:?}", points[i], points[j]);
-                canvas.draw_line(points[i], points[j]).unwrap();
+            // BLACKBOX: I really have no idea how this cross product calculation actually works :(
+            let mut line1: Vec3d = Vec3d { x: 0.0, y: 0.0, z: 0.0 };
+            line1.x = tri_normalize.p[1].x - tri_normalize.p[0].x;
+            line1.y = tri_normalize.p[1].y - tri_normalize.p[0].y;
+            line1.z = tri_normalize.p[1].z - tri_normalize.p[0].z;
+            let mut line2: Vec3d = Vec3d { x: 0.0, y: 0.0, z: 0.0 };
+            line2.x = tri_normalize.p[2].x - tri_normalize.p[0].x;
+            line2.y = tri_normalize.p[2].y - tri_normalize.p[0].y;
+            line2.z = tri_normalize.p[2].z - tri_normalize.p[0].z;
+            let mut normal: Vec3d = Vec3d { x: 0.0, y: 0.0, z: 0.0 };
+            normal.x = line1.y * line2.z - line1.z * line2.y;
+            normal.y = line1.z * line2.x - line1.x * line2.z;
+            normal.z = line1.x * line2.y - line1.y * line2.x;
+            // normalize the normal
+            let l: f64 = (normal.x * normal.x + normal.y * normal.y + normal.z * normal.z).sqrt();
+            normal.x /= l;
+            normal.y /= l;
+            normal.z /= l;
+            //println!("{:?}", normal);
+            // phew! done.
+
+            // only draw the rectangle if it is visible
+            if normal.z < 0.0 {
+                // draw triangle (as lines) to backbuffer
+                for i in 0..3 {
+                    // end of this line is the beginning of the next..
+                    let mut j = i + 1;
+                    // .. unless the next line is actually the first one
+                    j = if j == 3 { 0 } else { j };
+                    // set draw color to white
+                    canvas.set_draw_color(Color::RGB(255, 255, 255));
+                    // draw the line
+                    //println!("{:?}, {:?}", points[i], points[j]);
+                    canvas.draw_line(points[i], points[j]).unwrap();
+                }
             }
         }
 
