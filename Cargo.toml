@@ -1,0 +1,8 @@
+[package]
+name = "threedee"
+version = "0.1.0"
+authors = ["Antti Peltonen <antti.peltonen@iki.fi>"]
+edition = "2018"
+
+[dependencies]
+sdl2 = "0.32"
