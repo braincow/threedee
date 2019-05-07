@@ -131,6 +131,9 @@ pub fn main() {
     // time passing, theta (used for rotation)
     let mut theta: f64 = 0.0;
 
+    // dummy camera vector
+    let dummy_camera: Vec3d = Vec3d { x: 0.0, y: 0.0, z: 0.0 };
+
     // start event loop
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
@@ -262,7 +265,10 @@ pub fn main() {
             // phew! done.
 
             // only draw the rectangle if it is visible
-            if normal.z < 0.0 {
+            //if normal.z < 0.0 {
+            if normal.x * (tri_normalize.p[0].x - dummy_camera.x) +
+                normal.y * (tri_normalize.p[0].y - dummy_camera.y) +
+                normal.z * (tri_normalize.p[0].z - dummy_camera.z) < 0.0 {
                 // draw triangle (as lines) to backbuffer
                 for i in 0..3 {
                     // end of this line is the beginning of the next..
