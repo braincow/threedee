@@ -265,7 +265,6 @@ pub fn main() {
             // phew! done.
 
             // only draw the rectangle if it is visible
-            //if normal.z < 0.0 {
             if normal.x * (tri_normalize.p[0].x - dummy_camera.x) +
                 normal.y * (tri_normalize.p[0].y - dummy_camera.y) +
                 normal.z * (tri_normalize.p[0].z - dummy_camera.z) < 0.0 {
