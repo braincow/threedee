@@ -7,6 +7,7 @@ use sdl2::rect::Point;
 
 use std::time::Duration;
 use std::vec::Vec;
+use std::thread;
 
 #[derive(Clone, Debug)]
 struct Vec3d {
@@ -127,6 +128,9 @@ pub fn main() {
         ]
     ]};
 
+    // time passing, theta (used for rotation)
+    let mut theta: f64 = 0.0;
+
     // start event loop
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
@@ -142,7 +146,65 @@ pub fn main() {
             }
         }
 
-        // draw/do new stuff here
+        // draw/do new stuff below
+
+        // update rotation calculations
+        // rotation matrix for Z axis on the cube
+        let mat_rotz: Mat4x4 = Mat4x4 { m: [
+            [
+                theta.cos(),
+                theta.sin(),
+                0.0,
+                0.0,
+            ],
+            [
+                -theta.sin(),
+                theta.cos(),
+                0.0,
+                0.0,
+            ],
+            [
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+            ],
+            [
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+            ]
+        ]};
+
+        // rotation matrix for X axis on the cube
+        let mat_rotx: Mat4x4 = Mat4x4 { m: [
+            [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+            ],
+            [
+                0.0,
+                (theta * 0.5).cos(),
+                (theta * 0.5).sin(),
+                0.0,
+            ],
+            [
+                0.0,
+                -(theta * 0.5).sin(),
+                (theta * 0.5).cos(),
+                0.0,
+            ],
+            [
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+            ]
+        ]};
+
         // clear the canvas with black color
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
@@ -150,10 +212,17 @@ pub fn main() {
             // loop through all vertices in the triangle
             let mut points: [Point;3] = [ Point::new(0,0), Point::new(0,0), Point::new(0,0) ];
             for i in 0..3 {
+
+                // rotate (vertice) cube on Z axis
+                let mut tri_rotatedz: Triangle = tri.clone();
+                multiply_matrix_vector(&tri.p[i], &mut tri_rotatedz.p[i], &mat_rotz);
+                // rotate also on the X axis
+                let mut tri_rotatedx: Triangle = tri_rotatedz.clone();
+                multiply_matrix_vector(&tri_rotatedz.p[i], &mut tri_rotatedx.p[i], &mat_rotx);
+
                 // translate coordinates away from camera
-                let mut tri_translated: Triangle = tri.clone();
-                tri_translated.p[i].z += 1.0;
-                //println!("{:?}", tri_translated.p[i]);
+                let mut tri_translated: Triangle = tri_rotatedx.clone();
+                tri_translated.p[i].z += 3.0;
 
                 // project 3d vertices in 2d space
                 let mut tri_projected: Triangle = Triangle::zero();
@@ -166,8 +235,8 @@ pub fn main() {
 
                 // convert to SDL point struct
                 points[i] = Point::new(tri_projected.p[i].x as i32, tri_projected.p[i].y as i32);
-                //println!("{:?}", points[i]);
             }
+
             // draw triangle (as lines) to backbuffer
             for i in 0..3 {
                 // end of this line is the beginning of the next..
@@ -185,7 +254,9 @@ pub fn main() {
         // redraw the canvas from backbuffer
         canvas.present();
         // sleep for few microseconds to prevent endless loop
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        // and update theta to allow rotation of cube to happen
+        theta += 0.05;
     }
 }
 // eof
