@@ -45,8 +45,8 @@ struct Mat4x4 {
 fn multiply_matrix_vector(i: &Vec3d, o: &mut Vec3d, m: &Mat4x4) {
     // multiple given vector with the matrix
     o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
-    o.y = i.y * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
-    o.x = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
+    o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
+    o.z = i.x * m.m[0][2] + i.y * m.m[1][2] + i.z * m.m[2][2] + m.m[3][2];
 
     // push result into carthusian space
     let w: f64 = i.x * m.m[0][3] + i.y * m.m[1][3] + i.z * m.m[2][3] + m.m[3][3];
@@ -64,7 +64,7 @@ pub fn main() {
     let video_subsystem = sdl_context.video().unwrap();
  
     // create window and canvas with title and size
-    let window = video_subsystem.window("threedee", 800, 600)
+    let window = video_subsystem.window("threedee", 768, 768)
         .build()
         .unwrap();
     let mut canvas = window.into_canvas().build().unwrap();
