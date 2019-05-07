@@ -256,7 +256,7 @@ pub fn main() {
         // sleep for few microseconds to prevent endless loop
         thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
         // and update theta to allow rotation of cube to happen
-        theta += 0.05;
+        theta += 0.02;
     }
 }
 // eof
