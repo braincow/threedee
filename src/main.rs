@@ -285,8 +285,8 @@ pub fn main() {
                 fill_triangle(&points, &mut canvas);
 
                 // set draw color to white
-                //canvas.set_draw_color(Color::RGB(255, 255, 255));
-                //draw_triangle(&points, &mut canvas);
+                canvas.set_draw_color(Color::RGB(255, 255, 255));
+                draw_triangle(&points, &mut canvas);
             }
         }
 
