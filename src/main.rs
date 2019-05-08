@@ -142,7 +142,7 @@ pub fn main() {
     'running: loop {
         canvas.clear();
         for event in event_pump.poll_iter() {
-            println!("{:?}", event);
+            //println!("{:?}", event);
             match event {
                 Event::Quit {..} |
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
@@ -299,29 +299,12 @@ pub fn main() {
     }
 }
 
-/*
-fillBottomFlatTriangle(Vertice v1, Vertice v2, Vertice v3)
-{
-  float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
-  float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
-
-  float curx1 = v1.x;
-  float curx2 = v1.x;
-
-  for (int scanlineY = v1.y; scanlineY <= v2.y; scanlineY++)
-  {
-    drawLine((int)curx1, scanlineY, (int)curx2, scanlineY);
-    curx1 += invslope1;
-    curx2 += invslope2;
-  }
-}
-*/
 fn fill_bottom_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     //println!("fill_bottom_flat_triangle");
     let invslope1: f64 = (points[1].x as f64 - points[0].x as f64) / (points[1].y as f64 - points[0].y as f64);
     let invslope2: f64 = (points[2].x as f64 - points[0].x as f64) / (points[2].y as f64 - points[0].y as f64);
-    //println!("{:?}", points);
-    //println!("({}-{})/({}-{})={}", points[2].x, points[1].x, points[2].y, points[1].y, invslope2);
+    //println!("btf {:?}", points);
+    //println!("btf ({}-{})/({}-{})={}", points[2].x, points[1].x, points[2].y, points[1].y, invslope2);
 
     let mut curx1: f64 = points[0].x as f64;
     let mut curx2: f64 = points[0].x as f64;
@@ -335,29 +318,12 @@ fn fill_bottom_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     }
 }
 
-/*
-fillTopFlatTriangle(Vertice v1, Vertice v2, Vertice v3)
-{
-  float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
-  float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
-
-  float curx1 = v3.x;
-  float curx2 = v3.x;
-
-  for (int scanlineY = v3.y; scanlineY > v1.y; scanlineY--)
-  {
-    drawLine((int)curx1, scanlineY, (int)curx2, scanlineY);
-    curx1 -= invslope1;
-    curx2 -= invslope2;
-  }
-}
-*/
 fn fill_top_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     //println!("fill_top_flat_triangle");
     let invslope1: f64 = (points[2].x as f64 - points[0].x as f64) / (points[2].y as f64 - points[0].y as f64);
     let invslope2: f64 = (points[2].x as f64 - points[1].x as f64) / (points[2].y as f64 - points[1].y as f64);
-    //println!("{:?}", points);
-    //println!("({}-{})/({}-{})={}", points[2].x, points[1].x, points[2].y, points[1].y, invslope2);
+    //println!("ftf {:?}", points);
+    //println!("ftf ({}-{})/({}-{})={}", points[2].x, points[1].x, points[2].y, points[1].y, invslope2);
 
     let mut curx1: f64 = points[2].x as f64;
     let mut curx2: f64 = points[2].x as f64;
@@ -391,11 +357,12 @@ fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     } else {
         // general case, we need to split the triangle in half
         let half_point: Point = Point::new(
-            points[0].x + ((points[2].y - points[0].y) / (points[2].y - points[0].y)) * (points[2].x - points[0].x),
-            points[1].y
+            points_sorted[0].x + ((points_sorted[2].y - points_sorted[0].y) / (points_sorted[2].y - points_sorted[0].y)) * (points_sorted[2].x - points_sorted[0].x),
+            points_sorted[1].y
         );
-        fill_bottom_flat_triangle(&[points[0], points[1], half_point], canvas);
-        fill_top_flat_triangle(&[points[1], half_point, points[2]], canvas);
+        //println!("{:?}", half_point);
+        fill_bottom_flat_triangle(&[points_sorted[0], points_sorted[1], half_point], canvas);
+        fill_top_flat_triangle(&[points_sorted[1], half_point, points_sorted[2]], canvas);
     }
 }
 
