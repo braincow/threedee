@@ -276,18 +276,9 @@ pub fn main() {
                 canvas.set_draw_color(Color::RGB(220, 220, 220));
                 fill_triangle(&points, &mut canvas);
 
-                // draw triangle (as lines) to backbuffer
-                for i in 0..3 {
-                    // end of this line is the beginning of the next..
-                    let mut j = i + 1;
-                    // .. unless the next line is actually the first one
-                    j = if j == 3 { 0 } else { j };
-                    // set draw color to white
-                    canvas.set_draw_color(Color::RGB(255, 255, 255));
-                    // draw the line
-                    //println!("{:?}, {:?}", points[i], points[j]);
-                    canvas.draw_line(points[i], points[j]).unwrap();
-                }
+                // set draw color to white
+                //canvas.set_draw_color(Color::RGB(255, 255, 255));
+                //draw_triangle(&points, &mut canvas);
             }
         }
 
@@ -338,7 +329,7 @@ fn fill_top_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     }
 }
 
-    fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
+fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     // http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
     // sort the points for filling
     //println!("- {:?}", points);
@@ -365,6 +356,19 @@ fn fill_top_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
         //println!("h {:?}", half_point);
         fill_bottom_flat_triangle(&[points_sorted[0], points_sorted[1], half_point], canvas);
         fill_top_flat_triangle(&[points_sorted[1], half_point, points_sorted[2]], canvas);
+    }
+}
+
+fn draw_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
+    // draw triangle (as lines) to backbuffer
+    for i in 0..3 {
+        // end of this line is the beginning of the next..
+        let mut j = i + 1;
+        // .. unless the next line is actually the first one
+        j = if j == 3 { 0 } else { j };
+        // draw the line
+        //println!("{:?}, {:?}", points[i], points[j]);
+        canvas.draw_line(points[i], points[j]).unwrap();
     }
 }
 
