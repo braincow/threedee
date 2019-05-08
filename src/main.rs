@@ -320,6 +320,7 @@ fn fill_bottom_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     //println!("fill_bottom_flat_triangle");
     let invslope1: f64 = (points[1].x as f64 - points[0].x as f64) / (points[1].y as f64 - points[0].y as f64);
     let invslope2: f64 = (points[2].x as f64 - points[0].x as f64) / (points[2].y as f64 - points[0].y as f64);
+    //println!("{:?}", points);
     //println!("({}-{})/({}-{})={}", points[2].x, points[1].x, points[2].y, points[1].y, invslope2);
 
     let mut curx1: f64 = points[0].x as f64;
@@ -327,7 +328,7 @@ fn fill_bottom_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     for scanline_y in points[0].y..points[1].y {
         let p1 = Point::new(curx1 as i32, scanline_y);
         let p2 = Point::new(curx2 as i32, scanline_y);
-        println!("bft {:?} -> {:?}", p1, p2);
+        //println!("bft {:?} -> {:?}", p1, p2);
         canvas.draw_line(p1, p2).unwrap();
         curx1 += invslope1;
         curx2 += invslope2;
@@ -363,7 +364,7 @@ fn fill_top_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     for scanline_y in (points[0].y..points[2].y).rev() {
         let p1 = Point::new(curx1 as i32, scanline_y);
         let p2 = Point::new(curx2 as i32, scanline_y);
-        println!("ftf {:?} -> {:?}", p1, p2);
+        //println!("ftf {:?} -> {:?}", p1, p2);
         canvas.draw_line(p1, p2).unwrap();
         curx1 -= invslope1;
         curx2 -= invslope2;
@@ -389,7 +390,12 @@ fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
         fill_bottom_flat_triangle(&points_sorted, canvas);
     } else {
         // general case, we need to split the triangle in half
-        //let half_point: Point = 
+        let half_point: Point = Point::new(
+            points[0].x + ((points[2].y - points[0].y) / (points[2].y - points[0].y)) * (points[2].x - points[0].x),
+            points[1].y
+        );
+        fill_bottom_flat_triangle(&[points[0], points[1], half_point], canvas);
+        fill_top_flat_triangle(&[points[1], half_point, points[2]], canvas);
     }
 }
 
