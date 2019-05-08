@@ -43,7 +43,7 @@ struct Mesh {
     tris: Vec<Triangle>,
 }
 impl Mesh {
-    fn cube() -> Mesh {
+/*    fn cube() -> Mesh {
         Mesh {
             tris: vec![
             // south
@@ -66,7 +66,7 @@ impl Mesh {
             Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 0.0, z: 0.0} ], },
             ]
         }
-    }
+    } */
 
     fn load_obj(filename: &String) -> Mesh {
         // read in obj file
@@ -324,7 +324,7 @@ pub fn main() {
 
                 // set draw color to white
                 canvas.set_draw_color(Color::RGB(0, 0, 0));
-                //outline_triangle(&points, &mut canvas);
+                outline_triangle(&points, &mut canvas);
             }
         }
 
