@@ -13,6 +13,7 @@ use std::vec::Vec;
 use std::thread;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+use std::cmp::Ordering;
 
 #[derive(Clone, Debug, Copy)]
 struct Vec3d {
@@ -108,6 +109,20 @@ impl Mesh {
 struct Mat4x4 {
     // calculation matrix for doing projection calculations in
     m: [[f64;4];4],
+}
+
+struct PaintLayer {
+    triangle: Triangle,
+    color: Color
+}
+impl PaintLayer {
+    fn paint_to(self, canvas: &mut Canvas<Window>) {
+        canvas.set_draw_color(self.color);
+        fill_triangle(&self.triangle.points(), canvas);
+        // set draw color to white
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        outline_triangle(&self.triangle.points(), canvas);
+    }
 }
 
 fn multiply_matrix_vector(i: &Vec3d, o: &mut Vec3d, m: &Mat4x4) {
@@ -259,8 +274,10 @@ pub fn main() {
         // clear the canvas with black color
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
+
+        // loop through all vertices in the triangle
+        let mut layers: Vec<PaintLayer> = vec![];
         for tri in &mesh_cube.tris {
-            // loop through all vertices in the triangle
             let mut tri_normalize: Triangle = Triangle::zero();
             // rotate (vertice) cube on Z axis
             let mut tri_rotatedz: Triangle = Triangle::zero();
@@ -337,14 +354,30 @@ pub fn main() {
                 light_direction.y /= l;
                 light_direction.z /= l;
                 let light_dp: f64 = normal.x * light_direction.x + normal.y * light_direction.y + normal.z * light_direction.z;
-                // set draw color to gray'ish and fill in the triangle represented by points array
-                canvas.set_draw_color(get_color(&light_dp));
-                fill_triangle(&tri_projected.points(), &mut canvas);
 
-                // set draw color to white
-                canvas.set_draw_color(Color::RGB(0, 0, 0));
-                outline_triangle(&tri_projected.points(), &mut canvas);
+                // add this triangle to layer painting queue
+                layers.push(PaintLayer{triangle: tri_projected, color: get_color(&light_dp)});
             }
+        }
+
+        // sort layers in correct order (draw furthes most triangle first)
+        pdqsort::sort_by(&mut layers, |t1, t2| {
+			let z1: f64 = (t1.triangle.p[0].z + t1.triangle.p[1].z + t1.triangle.p[2].z) / 3.0;
+			let z2: f64 = (t2.triangle.p[0].z + t2.triangle.p[1].z + t2.triangle.p[2].z) / 3.0;
+            if z1 < z2 {
+                // z2 is greater
+                Ordering::Greater
+            } else if z1 > z2 {
+                // z2 is less
+                Ordering::Less
+            } else {
+                // z2 is equal
+                Ordering::Equal
+            }
+        });
+        // actually draw triangles to screen to achieve proper perspective in drawing
+        for layer in layers {
+            layer.paint_to(&mut canvas);
         }
 
         // redraw the canvas from backbuffer
