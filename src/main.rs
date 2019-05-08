@@ -1,3 +1,6 @@
+// based on @OneLoneCoder tutorials on the subject
+//  https://youtu.be/ih20l3pJoeU
+//  https://youtu.be/XgMWc6LumG4
 extern crate sdl2; 
 extern crate pdqsort;
 extern crate dotenv;
