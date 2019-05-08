@@ -272,8 +272,16 @@ pub fn main() {
                 normal.y * (tri_normalize.p[0].y - dummy_camera.y) +
                 normal.z * (tri_normalize.p[0].z - dummy_camera.z) < 0.0 {
 
+                // illumination
+                let mut light_direction: Vec3d = Vec3d { x: 0.0, y: 0.0, z: -1.0 };
+                // normalize the light direction
+                let l: f64 = (light_direction.x * light_direction.x + light_direction.y * light_direction.y + light_direction.z * light_direction.z).sqrt();
+                light_direction.x /= l;
+                light_direction.y /= l;
+                light_direction.z /= l;
+                let light_dp: f64 = normal.x * light_direction.x + normal.y * light_direction.y + normal.z * light_direction.z;
                 // set draw color to gray'ish and fill in the triangle represented by points array
-                canvas.set_draw_color(Color::RGB(220, 220, 220));
+                canvas.set_draw_color(get_color(&light_dp));
                 fill_triangle(&points, &mut canvas);
 
                 // set draw color to white
@@ -289,6 +297,11 @@ pub fn main() {
         // and update theta to allow rotation of cube to happen
         theta += 0.02;
     }
+}
+
+fn get_color(intensity: &f64) -> Color {   
+    let value: u8 = (255.0 * intensity) as u8;
+    Color::RGB(value, value, value)
 }
 
 fn fill_bottom_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
