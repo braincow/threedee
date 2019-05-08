@@ -11,6 +11,8 @@ use sdl2::video::Window;
 use std::time::Duration;
 use std::vec::Vec;
 use std::thread;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 #[derive(Clone, Debug)]
 struct Vec3d {
@@ -39,6 +41,61 @@ impl Triangle {
 struct Mesh {
     // mesh holds multiple triangles thus forming a object (3d model)
     tris: Vec<Triangle>,
+}
+impl Mesh {
+    fn cube() -> Mesh {
+        Mesh {
+            tris: vec![
+            // south
+            Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0} ], },
+            Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 0.0, z: 0.0} ], },
+            // east
+            Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0} ], },
+            Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0}, Vec3d { x: 1.0, y: 0.0, z: 1.0} ], },
+            // north
+            Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0} ], },
+            Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 1.0} ], },
+            // west
+            Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 0.0} ], },
+            Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0} ], },
+            // top
+            Triangle { p: [ Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0} ], },
+            Triangle { p: [ Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0} ], },
+            // bottom
+            Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0} ], },
+            Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 0.0, z: 0.0} ], },
+            ]
+        }
+    }
+
+    fn load_obj(filename: &String) -> Mesh {
+        // read in obj file
+        let mut read_vec: Vec<Vec3d> = vec![];
+        let mut read_tris: Vec<Triangle> = vec![];
+
+        // open the file and read it in line by line
+        let f = File::open(filename).unwrap();
+        for line in BufReader::new(f).lines() {
+            let data = line.unwrap();
+            let split_data: Vec<&str> = data.split_whitespace().collect();
+            //println!("{:?} {}", split_data, split_data.len());
+            if split_data.len() == 0 {
+                continue;
+            }
+            if split_data[0] == "v" {
+                // store vertex (point)
+                read_vec.push(Vec3d{ x: split_data[1].parse().unwrap(), y: split_data[2].parse().unwrap(), z: split_data[3].parse().unwrap() });
+            } else if split_data[0] == "f" {
+                // store triangle constructed of index points of points (v)
+                let vec1: Vec3d = read_vec[split_data[1].parse::<usize>().unwrap() - 1].clone();
+                let vec2: Vec3d = read_vec[split_data[2].parse::<usize>().unwrap() - 1].clone();
+                let vec3: Vec3d = read_vec[split_data[3].parse::<usize>().unwrap() - 1].clone();
+                read_tris.push(Triangle { p: [vec1, vec2, vec3]});
+            }
+        }
+        // return the tri vector as a mesh
+        Mesh { tris: read_tris }
+    }
 }
 
 struct Mat4x4 {
@@ -74,27 +131,8 @@ pub fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
 
     // build 3d objects here
-    let mut mesh_cube: Mesh = Mesh { tris: vec![] };
-    mesh_cube.tris = vec![
-        // south
-        Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0} ], },
-        Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 0.0, z: 0.0} ], },
-        // east
-        Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0} ], },
-        Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0}, Vec3d { x: 1.0, y: 0.0, z: 1.0} ], },
-        // north
-        Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0} ], },
-        Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 1.0} ], },
-        // west
-        Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 0.0} ], },
-        Triangle { p: [ Vec3d { x: 0.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0} ], },
-        // top
-        Triangle { p: [ Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 0.0, y: 1.0, z: 1.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0} ], },
-        Triangle { p: [ Vec3d { x: 0.0, y: 1.0, z: 0.0}, Vec3d { x: 1.0, y: 1.0, z: 1.0}, Vec3d { x: 1.0, y: 1.0, z: 0.0} ], },
-        // bottom
-        Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0} ], },
-        Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 0.0, z: 0.0} ], },
-    ];
+    //let mesh_cube: Mesh = Mesh::cube();
+    let mesh_cube: Mesh = Mesh::load_obj(&"teapot.obj".to_string());
 
     // information for the projection matrix
     let near: f64 = 0.1;
@@ -228,7 +266,7 @@ pub fn main() {
 
                 // translate coordinates away from camera
                 let mut tri_translated: Triangle = tri_rotatedx.clone();
-                tri_translated.p[i].z += 3.0;
+                tri_translated.p[i].z += 6.0;
 
                 // store pre projected version for later culling in a cross product calculation
                 tri_normalize.p[i] = tri_translated.p[i].clone();
@@ -286,7 +324,7 @@ pub fn main() {
 
                 // set draw color to white
                 canvas.set_draw_color(Color::RGB(0, 0, 0));
-                draw_triangle(&points, &mut canvas);
+                //outline_triangle(&points, &mut canvas);
             }
         }
 
@@ -372,7 +410,7 @@ fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     }
 }
 
-fn draw_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
+fn outline_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     // draw triangle (as lines) to backbuffer
     for i in 0..3 {
         // end of this line is the beginning of the next..
