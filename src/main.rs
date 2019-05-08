@@ -285,7 +285,7 @@ pub fn main() {
                 fill_triangle(&points, &mut canvas);
 
                 // set draw color to white
-                canvas.set_draw_color(Color::RGB(255, 255, 255));
+                canvas.set_draw_color(Color::RGB(0, 0, 0));
                 draw_triangle(&points, &mut canvas);
             }
         }
@@ -299,7 +299,7 @@ pub fn main() {
     }
 }
 
-fn get_color(intensity: &f64) -> Color {   
+fn get_color(intensity: &f64) -> Color {
     let value: u8 = (255.0 * intensity) as u8;
     Color::RGB(value, value, value)
 }
