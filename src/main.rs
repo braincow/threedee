@@ -272,6 +272,7 @@ pub fn main() {
                 normal.y * (tri_normalize.p[0].y - dummy_camera.y) +
                 normal.z * (tri_normalize.p[0].z - dummy_camera.z) < 0.0 {
 
+                // set draw color to gray'ish and fill in the triangle represented by points array
                 canvas.set_draw_color(Color::RGB(220, 220, 220));
                 fill_triangle(&points, &mut canvas);
 
@@ -337,7 +338,7 @@ fn fill_top_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     }
 }
 
-fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
+    fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     // http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
     // sort the points for filling
     //println!("- {:?}", points);
@@ -349,18 +350,19 @@ fn fill_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
     //println!("+ {:?}", points_sorted);
 
     if points_sorted[1].y == points_sorted[2].y {
-        // top-flat triangle
-        fill_top_flat_triangle(&points_sorted, canvas);
-    } else if points_sorted[0].y == points_sorted[1].y {
         // bottom-flat triangle
         fill_bottom_flat_triangle(&points_sorted, canvas);
+    } else if points_sorted[0].y == points_sorted[1].y {
+        // top-flat triangle
+        fill_top_flat_triangle(&points_sorted, canvas);
     } else {
         // general case, we need to split the triangle in half
         let half_point: Point = Point::new(
-            points_sorted[0].x + ((points_sorted[2].y - points_sorted[0].y) / (points_sorted[2].y - points_sorted[0].y)) * (points_sorted[2].x - points_sorted[0].x),
-            points_sorted[1].y
-        );
-        //println!("{:?}", half_point);
+            points_sorted[0].x + (((points_sorted[1].y - points_sorted[0].y) as f64 /
+                (points_sorted[2].y - points_sorted[0].y) as f64 ) as f64 *
+                (points_sorted[2].x - points_sorted[0].x) as f64) as i32,
+            points_sorted[1].y);
+        //println!("h {:?}", half_point);
         fill_bottom_flat_triangle(&[points_sorted[0], points_sorted[1], half_point], canvas);
         fill_top_flat_triangle(&[points_sorted[1], half_point, points_sorted[2]], canvas);
     }
