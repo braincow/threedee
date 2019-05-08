@@ -1,5 +1,6 @@
 extern crate sdl2; 
 extern crate pdqsort;
+extern crate dotenv;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -8,6 +9,9 @@ use sdl2::rect::Point;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
+use dotenv::dotenv;
+
+use std::env;
 use std::time::Duration;
 use std::vec::Vec;
 use std::thread;
@@ -51,7 +55,7 @@ struct Mesh {
     tris: Vec<Triangle>,
 }
 impl Mesh {
-/*    fn cube() -> Mesh {
+    fn cube() -> Mesh {
         Mesh {
             tris: vec![
             // south
@@ -74,7 +78,7 @@ impl Mesh {
             Triangle { p: [ Vec3d { x: 1.0, y: 0.0, z: 1.0}, Vec3d { x: 0.0, y: 0.0, z: 0.0}, Vec3d { x: 1.0, y: 0.0, z: 0.0} ], },
             ]
         }
-    } */
+    }
 
     fn load_obj(filename: &String) -> Mesh {
         // read in obj file
@@ -117,11 +121,15 @@ struct PaintLayer {
 }
 impl PaintLayer {
     fn paint_to(self, canvas: &mut Canvas<Window>) {
-        canvas.set_draw_color(self.color);
-        fill_triangle(&self.triangle.points(), canvas);
-        // set draw color to white
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        outline_triangle(&self.triangle.points(), canvas);
+        if env::var("RASTERIZE").unwrap_or("1".to_string()) == "1" {
+            canvas.set_draw_color(self.color);
+            fill_triangle(&self.triangle.points(), canvas);
+        }
+        if env::var("DRAW_WIREFRAME").unwrap_or("1".to_string()) == "1" {
+            // set draw color to white
+            canvas.set_draw_color(Color::RGB(0, 0, 0));
+            outline_triangle(&self.triangle.points(), canvas);
+        }
     }
 }
 
@@ -141,6 +149,9 @@ fn multiply_matrix_vector(i: &Vec3d, o: &mut Vec3d, m: &Mat4x4) {
 } 
 
 pub fn main() {
+    // init env
+    dotenv().ok();
+
     // init SDL2
     let sdl_context = sdl2::init().unwrap();
     // ... and figure out what windowing thing we should use
@@ -153,8 +164,10 @@ pub fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
 
     // build 3d objects here
-    //let mesh_cube: Mesh = Mesh::cube();
-    let mesh_cube: Mesh = Mesh::load_obj(&"teapot.obj".to_string());
+    let mut mesh_cube: Mesh = Mesh::cube();
+    if env::var("USE_OBJ").unwrap_or("1".to_string()) == "1" {
+        mesh_cube = Mesh::load_obj(&env::var("OBJ_FILE").unwrap_or("teapot.obj".to_string()));
+    }
 
     // information for the projection matrix
     let near: f64 = 0.1;
