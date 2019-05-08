@@ -1,4 +1,5 @@
 extern crate sdl2; 
+extern crate pdqsort;
 
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
@@ -264,6 +265,8 @@ pub fn main() {
             //println!("{:?}", normal);
             // phew! done.
 
+            fill_triangle(&points);
+
             // only draw the rectangle if it is visible
             if normal.x * (tri_normalize.p[0].x - dummy_camera.x) +
                 normal.y * (tri_normalize.p[0].y - dummy_camera.y) +
@@ -290,6 +293,18 @@ pub fn main() {
         // and update theta to allow rotation of cube to happen
         theta += 0.02;
     }
+}
+
+fn fill_triangle(points: &[Point; 3]) {
+    // http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html
+    // sort the points for filling
+    println!("- {:?}", points);
+    let mut points_sorted = points.clone();
+    // pdqsort sorts in decending order
+    pdqsort::sort_by(&mut points_sorted, |a, b| b.y.cmp(&a.y));
+    // .. we need them in ascending order
+    points_sorted.reverse();
+    println!("+ {:?}", points_sorted);
 }
 
 // eof
