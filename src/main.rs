@@ -14,7 +14,7 @@ use std::thread;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 struct Vec3d {
     // structure that holds X, Y and Z coordinates of a vector; point in space
     x: f64,
@@ -22,7 +22,7 @@ struct Vec3d {
     z: f64,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 struct Triangle {
     // triangle is a simplest of forms and contaisn threwe vectors (the points of the triangle)
     p: [Vec3d;3],
@@ -36,6 +36,13 @@ impl Triangle {
                 Vec3d { x: 0.0, y: 0.0, z: 0.0},
             ]
         }
+    }
+    fn points(self) -> [Point;3] {
+        [
+            Point::new(self.p[0].x as i32, self.p[0].y as i32),
+            Point::new(self.p[1].x as i32, self.p[1].y as i32),
+            Point::new(self.p[2].x as i32, self.p[2].y as i32)
+        ]
     }
 }
 struct Mesh {
@@ -254,35 +261,48 @@ pub fn main() {
         canvas.clear();
         for tri in &mesh_cube.tris {
             // loop through all vertices in the triangle
-            let mut points: [Point;3] = [ Point::new(0,0), Point::new(0,0), Point::new(0,0) ];
             let mut tri_normalize: Triangle = Triangle::zero();
-            for i in 0..3 {
-                // rotate (vertice) cube on Z axis
-                let mut tri_rotatedz: Triangle = Triangle::zero();
-                multiply_matrix_vector(&tri.p[i], &mut tri_rotatedz.p[i], &mat_rotz);
-                // rotate also on the X axis
-                let mut tri_rotatedx: Triangle = Triangle::zero();
-                multiply_matrix_vector(&tri_rotatedz.p[i], &mut tri_rotatedx.p[i], &mat_rotx);
+            // rotate (vertice) cube on Z axis
+            let mut tri_rotatedz: Triangle = Triangle::zero();
+            multiply_matrix_vector(&tri.p[0], &mut tri_rotatedz.p[0], &mat_rotz);
+            multiply_matrix_vector(&tri.p[1], &mut tri_rotatedz.p[1], &mat_rotz);
+            multiply_matrix_vector(&tri.p[2], &mut tri_rotatedz.p[2], &mat_rotz);
+            // rotate also on the X axis
+            let mut tri_rotatedx: Triangle = Triangle::zero();
+            multiply_matrix_vector(&tri_rotatedz.p[0], &mut tri_rotatedx.p[0], &mat_rotx);
+            multiply_matrix_vector(&tri_rotatedz.p[1], &mut tri_rotatedx.p[1], &mat_rotx);
+            multiply_matrix_vector(&tri_rotatedz.p[2], &mut tri_rotatedx.p[2], &mat_rotx);
 
-                // translate coordinates away from camera
-                let mut tri_translated: Triangle = tri_rotatedx.clone();
-                tri_translated.p[i].z += 6.0;
+            // translate coordinates away from camera
+            let mut tri_translated: Triangle = tri_rotatedx.clone();
+            tri_translated.p[0].z += 6.0;
+            tri_translated.p[1].z += 6.0;
+            tri_translated.p[2].z += 6.0;
 
-                // store pre projected version for later culling in a cross product calculation
-                tri_normalize.p[i] = tri_translated.p[i].clone();
+            // store pre projected version for later culling in a cross product calculation
+            tri_normalize.p[0] = tri_translated.p[0].clone();
+            tri_normalize.p[1] = tri_translated.p[1].clone();
+            tri_normalize.p[2] = tri_translated.p[2].clone();
 
-                // project 3d vertices in 2d space
-                let mut tri_projected: Triangle = Triangle::zero();
-                multiply_matrix_vector(&tri_translated.p[i], &mut tri_projected.p[i], &mat_proj);
-                // scale into view
-                tri_projected.p[i].x += 1.0;
-                tri_projected.p[i].y += 1.0;
-                tri_projected.p[i].x *= 0.5 * canvas.window().size().0 as f64;
-                tri_projected.p[i].y *= 0.5 * canvas.window().size().1 as f64;
+            // project 3d vertices in 2d space
+            let mut tri_projected: Triangle = Triangle::zero();
+            multiply_matrix_vector(&tri_translated.p[0], &mut tri_projected.p[0], &mat_proj);
+            multiply_matrix_vector(&tri_translated.p[1], &mut tri_projected.p[1], &mat_proj);
+            multiply_matrix_vector(&tri_translated.p[2], &mut tri_projected.p[2], &mat_proj);
 
-                // convert to SDL point struct
-                points[i] = Point::new(tri_projected.p[i].x as i32, tri_projected.p[i].y as i32);
-            }
+            // scale into view
+            tri_projected.p[0].x += 1.0;
+            tri_projected.p[0].y += 1.0;
+            tri_projected.p[0].x *= 0.5 * canvas.window().size().0 as f64;
+            tri_projected.p[0].y *= 0.5 * canvas.window().size().1 as f64;
+            tri_projected.p[1].x += 1.0;
+            tri_projected.p[1].y += 1.0;
+            tri_projected.p[1].x *= 0.5 * canvas.window().size().0 as f64;
+            tri_projected.p[1].y *= 0.5 * canvas.window().size().1 as f64;
+            tri_projected.p[2].x += 1.0;
+            tri_projected.p[2].y += 1.0;
+            tri_projected.p[2].x *= 0.5 * canvas.window().size().0 as f64;
+            tri_projected.p[2].y *= 0.5 * canvas.window().size().1 as f64;
 
             // BLACKBOX: I really have no idea how this cross product calculation actually works :(
             let mut line1: Vec3d = Vec3d { x: 0.0, y: 0.0, z: 0.0 };
@@ -309,7 +329,6 @@ pub fn main() {
             if normal.x * (tri_normalize.p[0].x - dummy_camera.x) +
                 normal.y * (tri_normalize.p[0].y - dummy_camera.y) +
                 normal.z * (tri_normalize.p[0].z - dummy_camera.z) < 0.0 {
-
                 // illumination
                 let mut light_direction: Vec3d = Vec3d { x: 0.0, y: 0.0, z: -1.0 };
                 // normalize the light direction
@@ -320,11 +339,11 @@ pub fn main() {
                 let light_dp: f64 = normal.x * light_direction.x + normal.y * light_direction.y + normal.z * light_direction.z;
                 // set draw color to gray'ish and fill in the triangle represented by points array
                 canvas.set_draw_color(get_color(&light_dp));
-                fill_triangle(&points, &mut canvas);
+                fill_triangle(&tri_projected.points(), &mut canvas);
 
                 // set draw color to white
                 canvas.set_draw_color(Color::RGB(0, 0, 0));
-                outline_triangle(&points, &mut canvas);
+                outline_triangle(&tri_projected.points(), &mut canvas);
             }
         }
 
