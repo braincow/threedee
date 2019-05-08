@@ -419,7 +419,7 @@ fn fill_bottom_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
 
     let mut curx1: f64 = points[0].x as f64;
     let mut curx2: f64 = points[0].x as f64;
-    for scanline_y in points[0].y..points[1].y {
+    for scanline_y in points[0].y-1..points[1].y {
         let p1 = Point::new(curx1 as i32, scanline_y);
         let p2 = Point::new(curx2 as i32, scanline_y);
         //println!("bft {:?} -> {:?}", p1, p2);
@@ -438,7 +438,7 @@ fn fill_top_flat_triangle(points: &[Point; 3], canvas: &mut Canvas<Window>) {
 
     let mut curx1: f64 = points[2].x as f64;
     let mut curx2: f64 = points[2].x as f64;
-    for scanline_y in (points[0].y..points[2].y).rev() {
+    for scanline_y in (points[0].y..points[2].y+1).rev() {
         let p1 = Point::new(curx1 as i32, scanline_y);
         let p2 = Point::new(curx2 as i32, scanline_y);
         //println!("ftf {:?} -> {:?}", p1, p2);
