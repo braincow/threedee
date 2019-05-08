@@ -308,9 +308,10 @@ pub fn main() {
 
             // translate coordinates away from camera
             let mut tri_translated: Triangle = tri_rotatedx.clone();
-            tri_translated.p[0].z += 6.0;
-            tri_translated.p[1].z += 6.0;
-            tri_translated.p[2].z += 6.0;
+            let distance: f64 = env::var("DISTANCE").unwrap_or("6.0".to_string()).parse::<f64>().unwrap();
+            tri_translated.p[0].z += distance;
+            tri_translated.p[1].z += distance;
+            tri_translated.p[2].z += distance;
 
             // store pre projected version for later culling in a cross product calculation
             tri_normalize.p[0] = tri_translated.p[0].clone();
