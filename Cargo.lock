@@ -313,6 +313,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "sdl2-triangle"
+version = "0.1.0"
+dependencies = [
+ "pdqsort 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2 0.32.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "syn"
 version = "0.15.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -348,6 +356,7 @@ dependencies = [
  "dotenv 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pdqsort 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "sdl2 0.32.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sdl2-triangle 0.1.0",
 ]
 
 [[package]]
