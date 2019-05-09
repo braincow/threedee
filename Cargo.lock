@@ -315,6 +315,7 @@ dependencies = [
 [[package]]
 name = "sdl2-triangle"
 version = "0.1.0"
+source = "git+https://github.com/braincow/rust-sdl2-triangle#5a0c70c17c3c10bdbf176f728c5356e168c2bf13"
 dependencies = [
  "pdqsort 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "sdl2 0.32.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -356,7 +357,7 @@ dependencies = [
  "dotenv 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pdqsort 1.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "sdl2 0.32.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "sdl2-triangle 0.1.0",
+ "sdl2-triangle 0.1.0 (git+https://github.com/braincow/rust-sdl2-triangle)",
 ]
 
 [[package]]
@@ -432,6 +433,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum rustc-demangle 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)" = "ccc78bfd5acd7bf3e89cffcf899e5cb1a52d6fafa8dec2739ad70c9577a57288"
 "checksum sdl2 0.32.2 (registry+https://github.com/rust-lang/crates.io-index)" = "d051a07231e303f5f719da78cb6f7394f6d5b54f733aef5b0b447804a83edd7b"
 "checksum sdl2-sys 0.32.6 (registry+https://github.com/rust-lang/crates.io-index)" = "34e71125077d297d57e4c1acfe8981b5bdfbf5a20e7b589abfdcb33bf1127f86"
+"checksum sdl2-triangle 0.1.0 (git+https://github.com/braincow/rust-sdl2-triangle)" = "<none>"
 "checksum syn 0.15.34 (registry+https://github.com/rust-lang/crates.io-index)" = "a1393e4a97a19c01e900df2aec855a29f71cf02c402e2f443b8d2747c25c5dbe"
 "checksum synstructure 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "73687139bf99285483c96ac0add482c3776528beac1d97d444f6e91f203a2015"
 "checksum thread_local 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)" = "c6b53e329000edc2b34dbe8545fd20e55a333362d0a321909685a19bd28c3f1b"

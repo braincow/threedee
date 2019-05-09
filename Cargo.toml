@@ -8,4 +8,7 @@ edition = "2018"
 sdl2 = "0.32"
 pdqsort = "1.0"
 dotenv = "0.14"
-sdl2-triangle = { path = "../sdl2-triangle", version = "0.1.0" }
+sdl2-triangle = { git = "https://github.com/braincow/rust-sdl2-triangle", version = "0.1.0" }
+
+#[patch.crates-io]
+#sdl2-triangle = { path = "../sdl2-triangle", version = "0.1.0" }
