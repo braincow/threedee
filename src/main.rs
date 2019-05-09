@@ -18,7 +18,7 @@ use sdl2_triangle::triangle as sdl_triangle;
 use dotenv::dotenv;
 
 use std::env;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use std::vec::Vec;
 use std::thread;
 use std::fs::File;
@@ -222,9 +222,22 @@ pub fn main() {
     // dummy camera vector
     let dummy_camera: Vec3d = Vec3d { x: 0.0, y: 0.0, z: 0.0 };
 
+    // calculate fps
+    let mut fps: usize = 0;
+    let mut timestamp: Instant = Instant::now();
     // start event loop
     let mut event_pump = sdl_context.event_pump().unwrap();
     'running: loop {
+        if timestamp.elapsed().as_secs() == 1 {
+            // one second went past, update fps in view
+            println!("FPS: {}", fps);
+            // zero timestamp and counter
+            fps = 0;
+            timestamp = Instant::now();
+        } else {
+            // increase fps counter by one
+            fps += 1;
+        }
         canvas.clear();
         for event in event_pump.poll_iter() {
             //println!("{:?}", event);
