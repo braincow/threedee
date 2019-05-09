@@ -230,7 +230,9 @@ pub fn main() {
     'running: loop {
         if timestamp.elapsed().as_secs() == 1 {
             // one second went past, update fps in view
-            println!("FPS: {}", fps);
+            if env::var("FPS").unwrap_or("1".to_string()) == "1" {
+                println!("FPS: {}", fps);
+            }
             // zero timestamp and counter
             fps = 0;
             timestamp = Instant::now();
@@ -415,6 +417,9 @@ pub fn main() {
             }
         });
         // actually draw triangles to screen to achieve proper perspective in drawing
+        if env::var("TRIAINFO").unwrap_or("1".to_string()) == "1" {
+            println!("Triangles: {}/{}", layers.len(), mesh_cube.tris.len());
+        }
         for layer in layers {
             layer.paint_to(&mut canvas);
         }
