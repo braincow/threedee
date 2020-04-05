@@ -20,6 +20,7 @@ Section "Install" ;No components page, name is not important
     File .env
     File tmp/SDL2/x86_64-w64-mingw32/bin/SDL2.dll
     File skull.obj
+    File teapot.obj
     File "LICENSE"
 
     ; Create start menu program group and icon
@@ -47,6 +48,7 @@ Section "Uninstall"
     Delete $INSTDIR\SDL2.dll
     Delete $INSTDIR\.env
     Delete $INSTDIR\skull.obj
+    Delete $INSTDIR\teapot.obj
     Delete "LICENSE"
     RMDir $INSTDIR
 
