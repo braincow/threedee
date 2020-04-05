@@ -32,6 +32,7 @@ unarchive-sdl2-mingw: download-sdl2-mingw
 clean:
 	rm -rf target
 	rm -rf tmp
+	rm -f threedee.msi
 
 build:
 	cargo build
