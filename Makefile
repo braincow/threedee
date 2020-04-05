@@ -9,8 +9,8 @@ none:
 fedora-install-mingw-gcc:
 	sudo dnf install mingw64-gcc mingw64-winpthreads-static
 
-fedora-install-mingw-nsis:
-	sudo dnf install mingw32-nsis
+fedora-install-msitools:
+	sudo dnf install msitools
 
 rustup-update:
 	rustup update
@@ -48,7 +48,7 @@ build-mingw-release:
 run-release: build-release
 	cargo run --release
 
-build-nsis: build-mingw-release
-	makensis threedee.nsi
+build-msi: build-mingw-release
+	wixl -v threedee.wxs	
 
 # eof

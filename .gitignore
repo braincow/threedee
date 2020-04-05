@@ -1,5 +1,5 @@
 /target
 **/*.rs.bk
 /tmp
-Threedee installer.exe
+threedee.msi
 .vscode
