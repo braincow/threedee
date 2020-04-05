@@ -7,13 +7,17 @@ none:
 	@echo 'None' target.
 
 fedora-install-mingw-gcc:
-	dnf install mingw64-gcc.x86_64 mingw64-winpthreads-static
+	sudo dnf install mingw64-gcc mingw64-winpthreads-static
+
+fedora-install-mingw-nsis:
+	sudo dnf install mingw32-nsis
 
 rustup-update:
 	rustup update
 
 rustup-add-win64-mingw:
 	rustup target add $(WIN_TARGET)
+	@echo Read the README.md in case if you have issues while cross compiling for windows. There are few examples on how to unfuck few known issues if they shall arise.
 
 download-sdl2-mingw:
 	mkdir -p tmp && \
@@ -43,5 +47,8 @@ build-mingw-release:
 
 run-release: build-release
 	cargo run --release
+
+build-nsis: build-mingw-release
+	makensis threedee.nsi
 
 # eof
