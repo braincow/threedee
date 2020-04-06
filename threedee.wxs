@@ -1,5 +1,6 @@
 <!-- https://wiki.gnome.org/msitools/HowTo/CreateMSI -->
 <!-- https://www.codeproject.com/tips/105638/a-quick-introduction-create-an-msi-installer-with -->
+<!-- real life example: https://helgeklein.com/blog/2014/09/real-world-example-wix-msi-application-installer/ -->
 <?xml version="1.0"?>
 <?define ProductVersion="0.1.2"?>
 <?define ProductUpgradeCode="2cf892f0-298b-41e9-9912-0b7e5beb8d63"?>
